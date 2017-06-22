@@ -1,0 +1,9 @@
+Building StackBIT
+
+See doc/readme-qt.rst for instructions on building StackBIT QT,
+the intended-for-end-users, nice-graphical-interface, reference
+implementation of StackBIT.
+
+See doc/build-*.txt for instructions on building stackbitd,
+the intended-for-services, no-graphical-interface, reference
+implementation of StackBIT.
