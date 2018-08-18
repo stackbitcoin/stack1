@@ -45,7 +45,7 @@ QMAKE_LFLAGS *= -fstack-protector-all --param ssp-buffer-size=1
 }
 # for extra security on Windows: enable ASLR and DEP via GCC linker flags
 win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
-win32:QMAKE_LFLAGS += -static-libgcc -static-libstdc++
+win32:QMAKE_LFLAGS += -static -static-libgcc -static-libstdc++
 
 # use: qmake "USE_QRCODE=1"
 # libqrencode (http://fukuchi.org/works/qrencode/index.en.html) must be installed for support
@@ -66,7 +66,7 @@ contains(USE_UPNP, -) {
     count(USE_UPNP, 0) {
         USE_UPNP=1
     }
-    DEFINES += USE_UPNP=$$USE_UPNP STATICLIB
+    DEFINES += USE_UPNP=$$USE_UPNP STATICLIB MINIUPNP_STATICLIB
     INCLUDEPATH += $$MINIUPNPC_INCLUDE_PATH
     LIBS += $$join(MINIUPNPC_LIB_PATH,,-L,) -lminiupnpc
     win32:LIBS += -liphlpapi
@@ -354,14 +354,28 @@ QMAKE_EXTRA_COMPILERS += TSQM
 OTHER_FILES += \
     doc/*.rst doc/*.txt doc/README README.md res/bitcoin-qt.rc
 
+win32 {
+  BOOST_THREAD_LIB_SUFFIX=
+  BOOST_INCLUDE_PATH=C:/devel/boost_1_55_0
+  BOOST_LIB_PATH=C:/devel/boost_1_55_0/stage/lib
+  BDB_INCLUDE_PATH=C:/devel/db-4.8.30
+  BDB_LIB_PATH=C:/devel/db-4.8.30
+  OPENSSL_INCLUDE_PATH=C:/devel/openssl-1.0.2o/include
+  OPENSSL_LIB_PATH=C:/devel/openssl-1.0.2o
+  MINIUPNPC_INCLUDE_PATH=C:/devel/miniupnpc-1.9
+  MINIUPNPC_LIB_PATH=C:/devel/miniupnpc-1.9
+  QRENCODE_INCLUDE_PATH=C:/devel/qrencode-3.4.4
+  QRENCODE_LIB_PATH=C:/devel/qrencode-3.4.4/.libs
+}
+
 # platform specific defaults, if not overridden on command line
 isEmpty(BOOST_LIB_SUFFIX) {
     macx:BOOST_LIB_SUFFIX = -mt
-    windows:BOOST_LIB_SUFFIX = -mt
+    windows:BOOST_LIB_SUFFIX = -mgw73-mt-s-1_55
 }
 
 isEmpty(BOOST_THREAD_LIB_SUFFIX) {
-    win32:BOOST_THREAD_LIB_SUFFIX = _win32$$BOOST_LIB_SUFFIX
+    win32:BOOST_THREAD_LIB_SUFFIX = $$BOOST_LIB_SUFFIX
     else:BOOST_THREAD_LIB_SUFFIX = $$BOOST_LIB_SUFFIX
 }
 
@@ -377,6 +391,16 @@ isEmpty(BDB_INCLUDE_PATH) {
     macx:BDB_INCLUDE_PATH = /opt/local/include/db48
 }
 
+isEmpty(OPENSSL_LIB_PATH) {
+    macx:OPENSSL_LIB_PATH = /opt/local/lib
+    windows:OPENSSL_LIB_PATH = C:\dev\openssl-1.0.2o
+}
+
+isEmpty(OPENSSL_INCLUDE_PATH) {
+    macx:OPENSSL_INCLUDE_PATH = /opt/local/include/openssl
+    windows:OPENSSL_INCLUDE_PATH = C:\dev\openssl-1.0.2o\include
+}
+
 isEmpty(BOOST_LIB_PATH) {
     macx:BOOST_LIB_PATH = /opt/local/lib
 }
@@ -384,6 +408,14 @@ isEmpty(BOOST_LIB_PATH) {
 isEmpty(BOOST_INCLUDE_PATH) {
     macx:BOOST_INCLUDE_PATH = /opt/local/include
 }
+
+isEmpty(MINIUPNPC_LIB_PATH) {
+    macx:MINIUPNPC_LIB_PATH=/opt/local/lib
+}
+
+isEmpty(MINIUPNPC_INCLUDE_PATH) {
+    macx:MINIUPNPC_INCLUDE_PATH=/opt/local/include/miniupnpc
+}    
 
 windows:DEFINES += WIN32
 windows:RC_FILE = src/qt/res/bitcoin-qt.rc
@@ -410,8 +442,8 @@ macx:QMAKE_LFLAGS_THREAD += -pthread
 macx:QMAKE_CXXFLAGS_THREAD += -pthread
 
 # Set libraries and includes at end, to use platform-defined defaults if not overridden
-INCLUDEPATH += $$BOOST_INCLUDE_PATH $$BDB_INCLUDE_PATH $$OPENSSL_INCLUDE_PATH $$QRENCODE_INCLUDE_PATH
-LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
+INCLUDEPATH += $$BOOST_INCLUDE_PATH $$BDB_INCLUDE_PATH $$MINIUPNPC_INCLUDE_PATH $$OPENSSL_INCLUDE_PATH $$QRENCODE_INCLUDE_PATH
+LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(MINIUPNPC_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
 LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX
 # -lgdi32 has to happen after -lcrypto (see  #681)
 windows:LIBS += -lws2_32 -lshlwapi -lmswsock -lole32 -loleaut32 -luuid -lgdi32
