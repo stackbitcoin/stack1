@@ -1,2 +1,2 @@
-# stackbit
+# Stackbit
 Stackbit is a PoS cryptocurrency
