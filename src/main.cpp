@@ -997,16 +997,27 @@ uint256 WantedByOrphan(const CBlock* pblockOrphan)
     return pblockOrphan->hashPrevBlock;
 }
 
+bool maxSupplyReached() {
+    if (!pindexBest)
+        return false;
+
+    return pindexBest->nMoneySupply >= MAX_MONEY;
+}
+
 // miner's coin base reward
 int64_t GetProofOfWorkReward(int64_t nFees)
 {
-    
-            int64_t nSubsidy = 100 * COIN;
+    // Force coin cap - return only fees
+    if (maxSupplyReached()) {
+      return nFees;
+    }
 
-            if(nBestHeight == 0)
-            {
-            nSubsidy = 1000000  * COIN;
-            }
+    int64_t nSubsidy = 100 * COIN;
+
+    if (nBestHeight == 0)
+    {
+        nSubsidy = 1000000 * COIN;
+    }
 
     if (fDebug && GetBoolArg("-printcreation"))
         printf("GetProofOfWorkReward() : create=%s nSubsidy=%"PRId64"\n", FormatMoney(nSubsidy).c_str(), nSubsidy);
@@ -1015,12 +1026,41 @@ int64_t GetProofOfWorkReward(int64_t nFees)
 }
 
 // miner's coin stake reward based on coin age spent (coin-days)
-int64_t GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees)
+int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees)
 {
     int64_t nSubsidy = nCoinAge * COIN_YEAR_REWARD * 33 / (365 * 33 + 8);
 
+    if (nHeight > FORK_APR_FORK_1_BLOCK)
+    {
+        // Force coin cap - return only fees
+        if (maxSupplyReached()) {
+          return nFees;
+        }
+
+        if (nHeight <= 799999)
+        {
+            nSubsidy = nSubsidy * 0.1;
+        }
+        else if (nHeight <= 899999)
+        {
+            nSubsidy = nSubsidy * 0.05;
+        }
+        else if (nHeight <= 1049999)
+        {
+            nSubsidy = nSubsidy * 0.025;
+        }
+        else if (nHeight <= 1199999)
+        {
+            nSubsidy = nSubsidy * 0.012;
+        }
+        else
+        {
+            nSubsidy = nSubsidy * 0.006;
+        }
+    }
+
     if (fDebug && GetBoolArg("-printcreation"))
-        printf("GetProofOfStakeReward(): create=%s nCoinAge=%"PRId64"\n", FormatMoney(nSubsidy).c_str(), nCoinAge);
+        printf("GetProofOfStakeReward(): create=%s nCoinAge=%"PRId64" nHeight=%d\n", FormatMoney(nSubsidy).c_str(), nCoinAge, nHeight);
 
     return nSubsidy + nFees;
 }
@@ -1591,7 +1631,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         if (!vtx[1].GetCoinAge(txdb, nCoinAge))
             return error("ConnectBlock() : %s unable to get coin age for coinstake", vtx[1].GetHash().ToString().substr(0,10).c_str());
 
-        int64_t nCalculatedStakeReward = GetProofOfStakeReward(nCoinAge, nFees);
+        int64_t nCalculatedStakeReward = (nBestHeight, nCoinAge, nFees);
 
         if (nStakeReward > nCalculatedStakeReward)
             return DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%"PRId64" vs calculated=%"PRId64")", nStakeReward, nCalculatedStakeReward));
@@ -2873,7 +2913,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         CAddress addrFrom;
         uint64_t nNonce = 1;
         vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
-        if (pfrom->nVersion < MIN_PEER_PROTO_VERSION)
+        if (pfrom->nVersion < MIN_PEER_PROTO_VERSION ||
+                (nBestHeight && nBestHeight >= FORK_APR_FORK_1_BLOCK && pfrom->nVersion < MIN_PEER_PROTO_VERSION_APR_FORK_1) )
         {
             // disconnect from peers older than this proto version
             printf("partner %s using obsolete version %i; disconnecting\n", pfrom->addr.ToString().c_str(), pfrom->nVersion);
