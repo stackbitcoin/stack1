@@ -374,7 +374,7 @@ win32 {
 # platform specific defaults, if not overridden on command line
 isEmpty(BOOST_LIB_SUFFIX) {
     macx:BOOST_LIB_SUFFIX = -mt
-    windows:BOOST_LIB_SUFFIX = -mgw63-mt-s-1_55
+    windows:BOOST_LIB_SUFFIX = -mgw73-mt-s-1_55
 }
 
 # platform specific defaults, if not overridden on command line
