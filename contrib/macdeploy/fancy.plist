@@ -20,12 +20,12 @@
 		<key>Applications</key>
 		<array>
 			<integer>370</integer>
-			<integer>156</integer>
+			<integer>146</integer>
 		</array>
-		<key>NovaCoin-Qt.app</key>
+		<key>StackBIT.app</key>
 		<array>
 			<integer>128</integer>
-			<integer>156</integer>
+			<integer>146</integer>
 		</array>
 	</dict>
 </dict>
