@@ -2,7 +2,7 @@
 Stackbit is a PoS cryptocurrency
 
 # Release Stackbit Wallet 2.0.0.0 : Hard Fork happened! Mandatory update!
-hard fork will be occur at block high 725,000
+hard fork will be occur at block height  725,000
 
 New APR schedule:
 
