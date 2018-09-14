@@ -358,7 +358,7 @@ win32 {
   BOOST_THREAD_LIB_SUFFIX=
   BOOST_INCLUDE_PATH=C:/devel/boost_1_55_0
   BOOST_LIB_PATH=C:/devel/boost_1_55_0/stage/lib
-  BDB_INCLUDE_PATH=C:/devel/db-4.8.30
+  BDB_INCLUDE_PATH=C:/devel/db-4.8.30/build_unix
   BDB_LIB_PATH=C:/devel/db-4.8.30
   OPENSSL_INCLUDE_PATH=C:/devel/openssl-1.0.2o/include
   OPENSSL_LIB_PATH=C:/devel/openssl-1.0.2o

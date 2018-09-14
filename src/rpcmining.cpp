@@ -21,8 +21,8 @@ Value getstakingreward(const Array& params, bool fHelp)
 
     int64_t nHeight = params[0].get_int64();
     int64_t nCoinAge = params[1].get_int64();
-
     return (uint64_t)GetProofOfStakeReward(nHeight, nCoinAge, 0);
+
 }
 
 Value getsubsidy(const Array& params, bool fHelp)
