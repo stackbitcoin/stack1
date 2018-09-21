@@ -9,7 +9,7 @@ New APR schedule:
 ### POS (PROOF-OF-STAKE) Reward
 
 ```
-before fork, until block 725,000 = 1000%
+before fork, until block 725,000 = 900%
 block 725,000 - 799,999 = 50%
 block 800,000 - 899,999 = 18%
 block 900,000 - above = 6%
